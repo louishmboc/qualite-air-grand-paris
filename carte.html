@@ -252,7 +252,7 @@
             
             document.getElementById('date-display').innerText = labelsAffichage[index];
             var dossier = (polluant === "PM25") ? "particules_fines_png_MGP" : "dioxyde_azote_png_MGP";
-            rasterLayer.setUrl(`images/${dossier}/${polluant}_${listeDates[index]}.png`);
+            rasterLayer.setUrl(`${dossier}/${polluant}_${listeDates[index]}.png`);
             
             mettreAJourLegende(polluant);
         }
