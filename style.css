@@ -1,0 +1,236 @@
+/* ==========================================
+   THÈME : URBAIN NOCTURNE (DARK MODE)
+   ========================================== */
+
+/* Réinitialisation de base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Fond général très sombre (Bleu nuit profond) */
+body {
+    background-color: #0b1121;
+    color: #cbd5e1; /* Texte gris clair lisible */
+    line-height: 1.6;
+}
+
+/* ==========================================
+   PAGE D'ACCUEIL (index.html)
+   ========================================== */
+
+/* Bannière principale (Hero) - Filtre sombre sur l'image */
+.hero {
+    background: linear-gradient(rgba(11, 17, 33, 0.85), rgba(11, 17, 33, 0.95)), url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80') center/cover;
+    height: 60vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #f8fafc;
+    padding: 20px;
+    border-bottom: 1px solid #1e293b;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 15px;
+    background: -webkit-linear-gradient(#00f2fe, #4facfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(0, 242, 254, 0.3);
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    color: #94a3b8;
+}
+
+/* Bouton style "Néon" */
+.btn-carte {
+    display: inline-block;
+    padding: 15px 35px;
+    background-color: transparent;
+    color: #00f2fe;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 30px;
+    border: 2px solid #00f2fe;
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.2), inset 0 0 10px rgba(0, 242, 254, 0.1);
+    transition: all 0.3s ease;
+}
+
+.btn-carte:hover {
+    background-color: #00f2fe;
+    color: #0b1121;
+    box-shadow: 0 0 25px rgba(0, 242, 254, 0.6);
+}
+
+/* Layout Principal */
+main {
+    max-width: 1000px;
+    margin: 50px auto;
+    padding: 0 20px;
+}
+
+/* Grille des polluants */
+.polluants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+/* Cartes d'information sombres */
+.card {
+    background: #151e32;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 1px solid #1e293b;
+    border-top: 4px solid #f59e0b; /* Liseré orangé */
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card:nth-child(2) {
+    border-top-color: #ef4444; /* Liseré rouge */
+}
+
+.card h2 {
+    margin-bottom: 15px;
+    color: #f1f5f9;
+}
+
+/* Section Enjeux et Tableau */
+.enjeux {
+    background: #151e32;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 1px solid #1e293b;
+}
+
+.enjeux h2 {
+    color: #f1f5f9;
+    margin-bottom: 15px;
+}
+
+.oms-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    background: #0f172a;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.oms-table th, .oms-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #1e293b;
+}
+
+.oms-table th {
+    background-color: #1e293b;
+    color: #f8fafc;
+    font-weight: 600;
+}
+
+.oms-table strong {
+    color: #ef4444; /* Mise en valeur des seuils OMS en rouge */
+}
+
+/* Pied de page */
+footer {
+    text-align: center;
+    padding: 30px;
+    background-color: #070b15;
+    color: #64748b;
+    border-top: 1px solid #1e293b;
+}
+
+/* ==========================================
+   PAGE CARTE (carte.html)
+   Panneaux superposés à la carte Leaflet
+   ========================================== */
+
+/* Style du Titre Principal */
+
+/* Bouton retour sur la carte */
+.btn-retour {
+    background: rgba(15, 23, 42, 0.8) !important;
+    backdrop-filter: blur(10px);
+    color: #94a3b8 !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    transition: all 0.3s ease;
+}
+
+.btn-retour:hover {
+    background: rgba(15, 23, 42, 1) !important;
+    color: #00f2fe !important;
+    border-color: #00f2fe !important;
+}
+
+/* Panneau de contrôle et Légende (Glassmorphism sombre) */
+.control-panel, .legend {
+    background: rgba(15, 23, 42, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
+    color: #e2e8f0 !important;
+    border-radius: 12px !important;
+}
+
+.control-panel h3, .legend h4 {
+    color: #f8fafc !important;
+    letter-spacing: 0.5px;
+}
+
+/* Style des labels textuels sur la carte */
+.radio-group label {
+    color: #cbd5e1;
+}
+
+#date-display {
+    color: #00f2fe !important; /* Date en cyan brillant */
+    text-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+}
+
+.legend-labels span {
+    color: #e2e8f0;
+}
+
+.oms-note {
+    color: #fbbf24 !important; /* Jaune warning pour l'OMS */
+}
+
+/* Customisation du curseur (Slider) pour le Dark Mode */
+input[type=range] {
+    -webkit-appearance: none;
+    background: transparent;
+}
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 6px;
+    background: #334155;
+    border-radius: 3px;
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: #00f2fe;
+    margin-top: -6px;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
+}

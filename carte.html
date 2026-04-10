@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte Interactive - Qualité de l'Air</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Segoe UI', Tahoma, sans-serif;}
+        
+        /* La carte prend tout l'écran */
+        #map { height: 100vh; width: 100%; z-index: 1; }
+        
+        /* --- NOUVEAU : LE PANNEAU LATÉRAL GAUCHE --- */
+        #side-panel {
+            position: absolute;
+            top: 0; left: 0;
+            width: 380px; height: 100vh;
+            background: rgba(11, 17, 33, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 1001; /* Au-dessus de la carte */
+            padding: 25px;
+            box-shadow: 5px 0 25px rgba(0,0,0,0.6);
+            display: flex; flex-direction: column;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #side-panel .btn-retour {
+            position: relative; top: 0; left: 0;
+            display: block; text-align: center; margin-bottom: 20px;
+        }
+
+        #commune-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center;}
+        
+        .commune-title { color: #00f2fe; text-align: center; font-size: 1.8rem; margin: 0 0 20px 0; }
+        .graph-container { background: rgba(15, 23, 42, 0.6); padding: 15px; border-radius: 8px; border: 1px solid #334155; }
+        .empty-state { color: #94a3b8; text-align: center; font-size: 1.1rem; line-height: 1.6; padding: 20px;}
+
+        /* Titre flottant de la page */
+        #page-title {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px);
+            padding: 15px 30px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); color: #f8fafc;
+            font-size: 1.2rem; font-weight: bold; text-align: center; pointer-events: none;
+        }
+        .accent-title { color: #00f2fe; }
+
+        /* Contrôles et Légende (à droite) */
+        .control-panel { position: absolute; top: 20px; right: 20px; z-index: 1000; }
+        .legend { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); padding: 15px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); color: #e2e8f0; font-size: 14px; width: 250px; }
+        .legend h4 { margin: 0 0 10px 0; color: #f8fafc; text-align: center; }
+        .gradient-bar { height: 15px; width: 100%; border-radius: 3px; margin: 10px 0; }
+        .legend-labels { display: flex; justify-content: space-between; font-weight: bold; }
+        .oms-note { font-size: 11px; color: #fbbf24; margin-top: 8px; text-align: center; font-style: italic; }
+        
+        /* Ajustement de l'échelle Leaflet (pour qu'elle ne tape pas dans le panneau gauche) */
+        .leaflet-control-scale { margin-left: 400px !important; margin-bottom: 20px !important; }
+    </style>
+</head>
+<body>
+
+    <div id="side-panel">
+        <a href="index.html" class="btn-retour">← Retour à l'accueil</a>
+        <hr style="border-color: #1e293b; margin-bottom: 20px;">
+        
+        <div id="commune-content">
+            <div class="empty-state">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="1.5" style="margin-bottom:15px;">
+                    <circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"></path>
+                </svg>
+                <br>
+                Cliquez sur une commune de la carte pour afficher son profil temporel détaillé.
+            </div>
+        </div>
+    </div>
+
+    <div id="page-title">
+        Les polluants dans la métropole du Grand Paris :<br>
+        <span class="accent-title">Focus sur le dioxyde d'azote et les particules fines</span>
+    </div>
+
+    <div id="map"></div>
+    <div class="control-panel">
+        <h3>Évolution de la pollution</h3>
+        <div class="radio-group">
+            <label><input type="radio" name="polluant" value="PM25" checked> Particules (PM2.5)</label>
+            <label><input type="radio" name="polluant" value="NO2"> Dioxyde d'Azote</label>
+        </div>
+        <div class="slider-container">
+            <input type="range" id="time-slider" min="0" value="0" step="1">
+            <span id="date-display">Janvier 2018</span>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. INITIALISATION CARTE & ÉCHELLE ---
+        // On décale légèrement le centre initial vers la droite pour compenser le panneau
+        var map = L.map('map', { zoomControl: false }).setView([48.8566, 2.4522], 11);
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+        L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(map);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap', maxZoom: 15
+        }).addTo(map);
+
+        // --- 2. RASTER IMAGE ---
+        // 🔴 N'OUBLIEZ PAS VOS COORDONNÉES !
+        var imageBounds = [[48.55376, 2.01487], [49.10277, 2.75010]]; 
+        var rasterLayer = L.imageOverlay('', imageBounds, { opacity: 0.8 }).addTo(map);
+
+        // --- 3. TEMPS, DATES & LÉGENDE ---
+        var listeDates = []; var labelsAffichage = [];
+        var nomsMois = ["Jan.", "Fév.", "Mars", "Avr.", "Mai", "Juin", "Juil.", "Août", "Sept.", "Oct.", "Nov.", "Déc."];
+        for (var annee = 2018; annee <= 2026; annee++) {
+            var moisMax = (annee === 2026) ? 3 : 12;
+            for (var mois = 1; mois <= moisMax; mois++) {
+                var moisStr = mois < 10 ? '0' + mois : mois;
+                listeDates.push(annee + '-' + moisStr);
+                labelsAffichage.push(nomsMois[mois - 1] + " " + annee);
+            }
+        }
+        document.getElementById('time-slider').max = listeDates.length - 1;
+
+        var legendeControl = L.control({position: 'bottomright'});
+        legendeControl.onAdd = function () { var div = L.DomUtil.create('div', 'info legend'); div.id = 'boite-legende'; return div; };
+        legendeControl.addTo(map);
+
+        function mettreAJourLegende(polluant) {
+            var div = document.getElementById('boite-legende');
+            if (polluant === "PM25") {
+                div.innerHTML = `<h4>PM2.5</h4><div class="gradient-bar" style="background: linear-gradient(to right, #ffffe5, #fec44f, #cc4c02, #662506);"></div><div class="legend-labels"><span>5</span><span>25+ µg/m³</span></div><div class="oms-note">Seuil OMS : 5 µg/m³</div>`;
+            } else {
+                div.innerHTML = `<h4>NO2</h4><div class="gradient-bar" style="background: linear-gradient(to right, #ffffb2, #fecc5c, #fd8d3c, #f03b20, #bd0026);"></div><div class="legend-labels"><span>10</span><span>60+ µg/m³</span></div><div class="oms-note">Seuil OMS : 10 µg/m³</div>`;
+            }
+        }
+
+        // --- 4. COMMUNES ET PANNEAU LATÉRAL ---
+        var communesLayer = null; var graphiqueActuel = null; var communeSelectionnee = null;
+
+        function chargerCommunes(polluant) {
+            var fichier = (polluant === "PM25") ? 'communes_PM25.geojson' : 'communes_NO2.geojson';
+            fetch(fichier)
+                .then(res => res.json())
+                .then(data => {
+                    if (communesLayer) { map.removeLayer(communesLayer); }
+                    communesLayer = L.geoJSON(data, {
+                        style: { color: "#ffffff", weight: 0.8, opacity: 0.4, fillOpacity: 0 },
+                        onEachFeature: function(feature, layer) {
+                            // On remplace le Popup par un événement Clic
+                            layer.on('click', function() {
+                                communeSelectionnee = feature; // On mémorise la commune
+                                afficherGraphiquePanneau(feature, polluant);
+                            });
+                        }
+                    }).addTo(map);
+                    
+                    // Si une commune était déjà cliquée, on actualise son graphique direct
+                    if(communeSelectionnee) { afficherGraphiquePanneau(communeSelectionnee, polluant); }
+                })
+                .catch(err => console.error(err));
+        }
+
+        function afficherGraphiquePanneau(feature, polluant) {
+            var nom = feature.properties.NOM_COM || "Commune";
+            var dataLine = listeDates.map(date => feature.properties[date] || null);
+            var color = (polluant === "PM25") ? "#f59e0b" : "#ef4444";
+
+            // Injection du HTML dans le panneau gauche
+            document.getElementById('commune-content').innerHTML = `
+                <h2 class="commune-title">${nom}</h2>
+                <div class="graph-container">
+                    <canvas id="graphique" width="300" height="220"></canvas>
+                </div>
+                <p style="text-align: center; color: #94a3b8; font-size: 0.9rem; margin-top: 15px;">
+                    Moyennes mensuelles de ${polluant}
+                </p>
+            `;
+
+            // Création du graphique
+            var canvas = document.getElementById('graphique');
+            if (graphiqueActuel) graphiqueActuel.destroy();
+            
+            graphiqueActuel = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: labelsAffichage,
+                    datasets: [{
+                        label: `Moyenne ${polluant}`, data: dataLine,
+                        borderColor: color, backgroundColor: color + '40',
+                        fill: true, pointRadius: 0, tension: 0.3
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    plugins: { legend: { display: false } }, 
+                    scales: { 
+                        x: { 
+                            display: true, grid: { display: false },
+                            ticks: { color: '#94a3b8', maxTicksLimit: 9, maxRotation: 45, minRotation: 45 }
+                        },
+                        y: { beginAtZero: true, grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }
+                    } 
+                }
+            });
+        }
+
+        // --- 5. SYNCHRONISATION ---
+        function mettreAJourCarte() {
+            var index = document.getElementById('time-slider').value;
+            var polluant = document.querySelector('input[name="polluant"]:checked').value;
+            
+            document.getElementById('date-display').innerText = labelsAffichage[index];
+            var dossier = (polluant === "PM25") ? "particules_fines_png_MGP" : "dioxyde_azote_png_MGP";
+            rasterLayer.setUrl(`images/${dossier}/${polluant}_${listeDates[index]}.png`);
+            
+            mettreAJourLegende(polluant);
+        }
+
+        document.getElementById('time-slider').addEventListener('input', mettreAJourCarte);
+        document.querySelectorAll('input[name="polluant"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                mettreAJourCarte();
+                chargerCommunes(this.value);
+            });
+        });
+
+        // Lancement
+        mettreAJourCarte();
+        chargerCommunes("PM25");
+    </script>
+</body>
+</html>
