@@ -1,8 +1,4 @@
-/* ==========================================
-   THÈME : URBAIN NOCTURNE (DARK MODE)
-   ========================================== */
 
-/* Réinitialisation de base */
 * {
     margin: 0;
     padding: 0;
@@ -10,18 +6,14 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Fond général très sombre (Bleu nuit profond) */
 body {
     background-color: #0b1121;
-    color: #cbd5e1; /* Texte gris clair lisible */
+    color: #cbd5e1; 
     line-height: 1.6;
 }
 
-/* ==========================================
-   PAGE D'ACCUEIL (index.html)
-   ========================================== */
 
-/* Bannière principale (Hero) - Filtre sombre sur l'image */
+
 .hero {
     background: linear-gradient(rgba(11, 17, 33, 0.85), rgba(11, 17, 33, 0.95)), url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80') center/cover;
     height: 60vh;
@@ -49,7 +41,6 @@ body {
     color: #94a3b8;
 }
 
-/* Bouton style "Néon" */
 .btn-carte {
     display: inline-block;
     padding: 15px 35px;
@@ -70,14 +61,13 @@ body {
     box-shadow: 0 0 25px rgba(0, 242, 254, 0.6);
 }
 
-/* Layout Principal */
 main {
     max-width: 1000px;
     margin: 50px auto;
     padding: 0 20px;
 }
 
-/* Grille des polluants */
+
 .polluants-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -85,14 +75,14 @@ main {
     margin-bottom: 50px;
 }
 
-/* Cartes d'information sombres */
+
 .card {
     background: #151e32;
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     border: 1px solid #1e293b;
-    border-top: 4px solid #f59e0b; /* Liseré orangé */
+    border-top: 4px solid #f59e0b; 
     transition: transform 0.3s ease;
 }
 
@@ -101,7 +91,7 @@ main {
 }
 
 .card:nth-child(2) {
-    border-top-color: #ef4444; /* Liseré rouge */
+    border-top-color: #ef4444; 
 }
 
 .card h2 {
@@ -109,7 +99,7 @@ main {
     color: #f1f5f9;
 }
 
-/* Section Enjeux et Tableau */
+
 .enjeux {
     background: #151e32;
     padding: 40px;
@@ -145,10 +135,10 @@ main {
 }
 
 .oms-table strong {
-    color: #ef4444; /* Mise en valeur des seuils OMS en rouge */
+    color: #ef4444;
 }
 
-/* Pied de page */
+
 footer {
     text-align: center;
     padding: 30px;
@@ -157,14 +147,7 @@ footer {
     border-top: 1px solid #1e293b;
 }
 
-/* ==========================================
-   PAGE CARTE (carte.html)
-   Panneaux superposés à la carte Leaflet
-   ========================================== */
 
-/* Style du Titre Principal */
-
-/* Bouton retour sur la carte */
 .btn-retour {
     background: rgba(15, 23, 42, 0.8) !important;
     backdrop-filter: blur(10px);
@@ -179,7 +162,7 @@ footer {
     border-color: #00f2fe !important;
 }
 
-/* Panneau de contrôle et Légende (Glassmorphism sombre) */
+
 .control-panel, .legend {
     background: rgba(15, 23, 42, 0.85) !important;
     backdrop-filter: blur(12px) !important;
@@ -195,13 +178,13 @@ footer {
     letter-spacing: 0.5px;
 }
 
-/* Style des labels textuels sur la carte */
+
 .radio-group label {
     color: #cbd5e1;
 }
 
 #date-display {
-    color: #00f2fe !important; /* Date en cyan brillant */
+    color: #00f2fe !important; 
     text-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
 }
 
@@ -210,10 +193,10 @@ footer {
 }
 
 .oms-note {
-    color: #fbbf24 !important; /* Jaune warning pour l'OMS */
+    color: #fbbf24 !important; 
 }
 
-/* Customisation du curseur (Slider) pour le Dark Mode */
+
 input[type=range] {
     -webkit-appearance: none;
     background: transparent;
