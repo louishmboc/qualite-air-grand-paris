@@ -13,34 +13,58 @@
     <style>
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Segoe UI', Tahoma, sans-serif;}
         
-
         #map { height: 100vh; width: 100%; z-index: 1; }
         
-
         #side-panel {
             position: absolute;
             top: 0; left: 0;
             width: 380px; height: 100vh;
             background: rgba(11, 17, 33, 0.95);
             backdrop-filter: blur(15px);
-            z-index: 1001;
+            z-index: 1001; 
             padding: 25px;
             box-shadow: 5px 0 25px rgba(0,0,0,0.6);
             display: flex; flex-direction: column;
             border-right: 1px solid rgba(255, 255, 255, 0.1);
+            
+            transition: transform 0.4s ease-in-out;
         }
 
-        #side-panel .btn-retour {
-            position: relative; top: 0; left: 0;
-            display: block; text-align: center; margin-bottom: 20px;
-        }
-
-        #commune-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center;}
         
+        #side-panel.collapsed {
+            transform: translateX(-100%);
+        }
+
+        
+        #toggle-panel {
+            position: absolute;
+            top: 50%;
+            right: -30px; 
+            transform: translateY(-50%);
+            width: 30px; height: 60px;
+            background: rgba(11, 17, 33, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: none; /* Pas de bordure côté panneau */
+            border-radius: 0 8px 8px 0;
+            color: #00f2fe;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(15px);
+            box-shadow: 5px 0 10px rgba(0,0,0,0.3);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        #toggle-panel:hover {
+            background: #1e293b; color: #fff;
+        }
+
+        
+        #side-panel .btn-retour { position: relative; display: block; text-align: center; margin-bottom: 20px; }
+        #commune-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center;}
         .commune-title { color: #00f2fe; text-align: center; font-size: 1.8rem; margin: 0 0 20px 0; }
         .graph-container { background: rgba(15, 23, 42, 0.6); padding: 15px; border-radius: 8px; border: 1px solid #334155; }
         .empty-state { color: #94a3b8; text-align: center; font-size: 1.1rem; line-height: 1.6; padding: 20px;}
-
 
         #page-title {
             position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
@@ -51,21 +75,20 @@
         }
         .accent-title { color: #00f2fe; }
 
-
         .control-panel { position: absolute; top: 20px; right: 20px; z-index: 1000; }
         .legend { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); padding: 15px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); color: #e2e8f0; font-size: 14px; width: 250px; }
         .legend h4 { margin: 0 0 10px 0; color: #f8fafc; text-align: center; }
         .gradient-bar { height: 15px; width: 100%; border-radius: 3px; margin: 10px 0; }
         .legend-labels { display: flex; justify-content: space-between; font-weight: bold; }
         .oms-note { font-size: 11px; color: #fbbf24; margin-top: 8px; text-align: center; font-style: italic; }
-        
-
-        .leaflet-control-scale { margin-left: 400px !important; margin-bottom: 20px !important; }
+        .leaflet-control-scale { margin-left: 400px !important; margin-bottom: 20px !important; transition: margin-left 0.4s ease-in-out;}
     </style>
 </head>
 <body>
 
     <div id="side-panel">
+        <button id="toggle-panel" title="Masquer/Afficher le panneau">◀</button>
+
         <a href="index.html" class="btn-retour">← Retour à l'accueil</a>
         <hr style="border-color: #1e293b; margin-bottom: 20px;">
         
@@ -99,6 +122,21 @@
     </div>
 
     <script>
+        const sidePanel = document.getElementById('side-panel');
+        const toggleBtn = document.getElementById('toggle-panel');
+
+        toggleBtn.addEventListener('click', function() {
+            sidePanel.classList.toggle('collapsed');
+            
+           
+            if (sidePanel.classList.contains('collapsed')) {
+                toggleBtn.innerHTML = '▶'; 
+                document.querySelector('.leaflet-control-scale').style.marginLeft = '20px'; 
+            } else {
+                toggleBtn.innerHTML = '◀'; 
+                document.querySelector('.leaflet-control-scale').style.marginLeft = '400px'; 
+            }
+        });
 
         var map = L.map('map', { zoomControl: false }).setView([48.8566, 2.4522], 11);
         L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -108,10 +146,8 @@
             attribution: '&copy; OpenStreetMap', maxZoom: 15
         }).addTo(map);
 
-
         var imageBounds = [[48.55376, 2.01487], [49.10277, 2.75010]]; 
         var rasterLayer = L.imageOverlay('', imageBounds, { opacity: 0.8 }).addTo(map);
-
 
         var listeDates = []; var labelsAffichage = [];
         var nomsMois = ["Jan.", "Fév.", "Mars", "Avr.", "Mai", "Juin", "Juil.", "Août", "Sept.", "Oct.", "Nov.", "Déc."];
@@ -138,7 +174,6 @@
             }
         }
 
-
         var communesLayer = null; var graphiqueActuel = null; var communeSelectionnee = null;
 
         function chargerCommunes(polluant) {
@@ -150,25 +185,28 @@
                     communesLayer = L.geoJSON(data, {
                         style: { color: "#ffffff", weight: 0.8, opacity: 0.4, fillOpacity: 0 },
                         onEachFeature: function(feature, layer) {
-    
                             layer.on('click', function() {
-                                communeSelectionnee = feature; // On mémorise la commune
+                                communeSelectionnee = feature; 
                                 afficherGraphiquePanneau(feature, polluant);
                             });
                         }
                     }).addTo(map);
                     
-
                     if(communeSelectionnee) { afficherGraphiquePanneau(communeSelectionnee, polluant); }
                 })
                 .catch(err => console.error(err));
         }
 
         function afficherGraphiquePanneau(feature, polluant) {
+            if (sidePanel.classList.contains('collapsed')) {
+                sidePanel.classList.remove('collapsed');
+                toggleBtn.innerHTML = '◀';
+                document.querySelector('.leaflet-control-scale').style.marginLeft = '400px';
+            }
+
             var nom = feature.properties.NOM_COM || "Commune";
             var dataLine = listeDates.map(date => feature.properties[date] || null);
             var color = (polluant === "PM25") ? "#f59e0b" : "#ef4444";
-
 
             document.getElementById('commune-content').innerHTML = `
                 <h2 class="commune-title">${nom}</h2>
@@ -179,7 +217,6 @@
                     Moyennes mensuelles de ${polluant}
                 </p>
             `;
-
 
             var canvas = document.getElementById('graphique');
             if (graphiqueActuel) graphiqueActuel.destroy();
@@ -208,13 +245,14 @@
             });
         }
 
+
         function mettreAJourCarte() {
             var index = document.getElementById('time-slider').value;
             var polluant = document.querySelector('input[name="polluant"]:checked').value;
             
             document.getElementById('date-display').innerText = labelsAffichage[index];
             var dossier = (polluant === "PM25") ? "particules_fines_png_MGP" : "dioxyde_azote_png_MGP";
-            rasterLayer.setUrl(`${dossier}/${polluant}_${listeDates[index]}.png`);
+            rasterLayer.setUrl(`images/${dossier}/${polluant}_${listeDates[index]}.png`);
             
             mettreAJourLegende(polluant);
         }
