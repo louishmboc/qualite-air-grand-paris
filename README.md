@@ -3,9 +3,10 @@
 Une géographie de la pollution atmosphérique dans la métropole du Grand Paris, de janvier 2018 à mars 2026 : cartes mensuelles du dioxyde d'azote (NO2) et des particules fines (PM2.5), et profil temporel de chaque commune. Projet de géomatique et de datavisualisation réalisé dans le cadre du Master Observation de la Terre et Géomatique (Université de Strasbourg).
 
 **Site en ligne : [https://louishmboc.github.io/qualite-air-grand-paris/](https://louishmboc.github.io/qualite-air-grand-paris/index.html)**
+
 **Carte interactive : [https://louishmboc.github.io/qualite-air-grand-paris/carte.html](https://louishmboc.github.io/qualite-air-grand-paris/carte.html)**
 
-**Carte interactive de la qualité de l'air
+**Carte interactive de la qualité de l'air**
 
 <img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/4501ea2f-20f6-47f6-9a77-9b0bae51d2ba" />
 
