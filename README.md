@@ -5,7 +5,8 @@ Une géographie de la pollution atmosphérique dans la métropole du Grand Paris
 **Site en ligne : [https://louishmboc.github.io/qualite-air-grand-paris/](https://louishmboc.github.io/qualite-air-grand-paris/index.html)**
 **Carte interactive : [https://louishmboc.github.io/qualite-air-grand-paris/carte.html](https://louishmboc.github.io/qualite-air-grand-paris/carte.html)**
 
-![Carte interactive de la qualité de l'air](captures/carte.png)
+**Carte interactive de la qualité de l'air
+
 <img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/4501ea2f-20f6-47f6-9a77-9b0bae51d2ba" />
 
 
