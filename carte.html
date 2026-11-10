@@ -142,10 +142,16 @@
         L.control.zoom({ position: 'bottomright' }).addTo(map);
         L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(map);
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap', maxZoom: 15
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+            maxZoom: 16
         }).addTo(map);
 
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 16,
+            pane: 'tilePane'
+        }).addTo(map);
+        
         var imageBounds = [[48.55376, 2.01487], [49.10277, 2.75010]]; 
         var rasterLayer = L.imageOverlay('', imageBounds, { opacity: 0.8 }).addTo(map);
 
