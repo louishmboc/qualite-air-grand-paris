@@ -56,7 +56,7 @@ La méthodologie s'est articulée autour d'une chaîne de traitement géomatique
 - HTML5, CSS3, JavaScript
 - [Leaflet](https://leafletjs.com/) 1.9.4 : carte, superposition d'images (`L.imageOverlay`) et couche vectorielle (`L.geoJSON`)
 - [Chart.js](https://www.chartjs.org/) : graphique temporel par commune
-- Fond de carte CARTO « dark » (données OpenStreetMap)
+- Fond de carte ESRI
 - Hébergement : GitHub Pages
 
 ## Structure du dépôt
